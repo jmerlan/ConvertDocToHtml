@@ -7,6 +7,8 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <Button x:Name="buttConvert" Content="Convert" HorizontalAlignment="Left" Margin="170,153,0,0" VerticalAlignment="Top" Width="184" Height="41" Click="buttConvert_Click"/>
+        <TextBox x:Name="txtDirPath" HorizontalAlignment="Left" Height="23" Margin="10,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="497" Text="C:\Users\Jay\Amazon Drive\Business\BIM Extension\Projects\14074 - MyLewis 2\Documentation\Operations\Work Plans\Tower Crane Work Plan" />
+
     </Grid>
 </Window>
