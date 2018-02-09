@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -28,49 +29,101 @@ namespace ConvertDocxToHtml
     public partial class MainWindow : Window
     {
 
-        string docXFilePath = @"C:\Users\Jay\Amazon Drive\Business\BIM Extension\Projects\14074 - MyLewis 2\Documentation\Operations\Work Plans\Tower Crane Work Plan\Chapter 1 - Work Plan\Sec 1 - Overview\Overview.docx";
-        string htmlDirectory = @"C:\Users\Jay\Amazon Drive\Business\BIM Extension\Projects\14074 - MyLewis 2\Documentation\HTML\Blank.html";
-        string dirPath = "";
-
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void ConvertDirToHtml()
+        /// <summary>
+        /// Gets a list of all files from the selected folder
+        /// </summary>
+        private string[] GetAllFiles(string dirPath)
         {
+            // String for testing
             StringBuilder sb = new StringBuilder();
-            txtDirPath.Text = @"C:\Users\Jay\Amazon Drive\Business\BIM Extension\Projects\14074 - MyLewis 2\Documentation\Operations\Work Plans\Tower Crane Work Plan";
+
+            // Get path of selected directory
             dirPath = txtDirPath.Text;
             string[] files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
 
+            // Print test string of all filenames
             foreach (string f in files)
             {
                 sb.Append(System.IO.Path.GetFileName(f) + "\n");
             }
+            System.Windows.MessageBox.Show(sb.ToString());
 
-            MessageBox.Show(sb.ToString());
+            return files;
+        }
+
+        /// <summary>
+        /// Converts a file to HTML
+        /// </summary>
+        private void ConvertDirToHtml(string docXFilePath, string htmlFilePath)
+        {
+            //byte[] byteArray = File.ReadAllBytes(docXFilePath);
+            byte[] byteArray = File.ReadAllBytes(@"C: \Users\jay.merlan\Desktop\Temp\Doc Conversion\Tower Crane Work Plan\Chapter 1 - Work Plan\Sec 1 - Overview\Overview.docx");
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                memoryStream.Write(byteArray, 0, byteArray.Length);
+                using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
+                {
+                    HtmlConverterSettings settings = new HtmlConverterSettings()
+                    {
+                        PageTitle = "My Page Title"
+                    };
+                    XElement html = HtmlConverter.ConvertToHtml(doc, settings);
+
+                    File.WriteAllText(htmlFilePath, html.ToStringNewLineOnAttributes());
+                }
+            }
+        }
+
+
+        private string GenerateHtmlFilePath(string sourceFilePath)
+        {
+            string htmlPath = txtDirPathDest.Text;
+
+            
+            return htmlPath;
         }
 
         private void buttConvert_Click(object sender, RoutedEventArgs e)
         {
-            ConvertDirToHtml();
+            // Get list of all files from the path in the text box
+            string[] files = GetAllFiles(txtDirPath.Text);
+            
+            foreach (string f in files)
+            {
+                // Generate HTML filename
+                string docFileName = System.IO.Path.GetFileName(f);
 
-            //byte[] byteArray = File.ReadAllBytes(docXFilePath);
-            //using (MemoryStream memoryStream = new MemoryStream())
-            //{
-            //    memoryStream.Write(byteArray, 0, byteArray.Length);
-            //    using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
-            //    {
-            //        HtmlConverterSettings settings = new HtmlConverterSettings()
-            //        {
-            //            PageTitle = "My Page Title"
-            //        };
-            //        XElement html = HtmlConverter.ConvertToHtml(doc, settings);
+                System.Windows.MessageBox.Show(htmlFilePath);
 
-            //        File.WriteAllText(htmlDirectory, html.ToStringNewLineOnAttributes());
-            //    }
-            //}
+                // Convert
+                ConvertDirToHtml(f, htmlFilePath);
+            }
+        }
+
+        private void btnFolderSource_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                txtDirPath.Text = dialog.SelectedPath;
+            }
+
+        }
+
+        private void btnFolderDest_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                txtDirPathDest.Text = dialog.SelectedPath;
+            }
+
         }
     }
 }
