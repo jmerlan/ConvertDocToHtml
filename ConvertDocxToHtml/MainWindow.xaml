@@ -8,9 +8,9 @@
         Title="Convert Documents to HTML" Height="235.029" Width="525">
     <Grid>
         <Button x:Name="buttConvert" Content="Convert" HorizontalAlignment="Left" Margin="168,134,0,0" VerticalAlignment="Top" Width="184" Height="41" Click="buttConvert_Click"/>
-        <TextBox x:Name="txtDirPath" HorizontalAlignment="Left" Height="32" Margin="10,28,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="427" TextAlignment="Right" />
+        <TextBox x:Name="txtDirPath" HorizontalAlignment="Left" Height="32" Margin="10,28,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="427" TextAlignment="Right" Text="C:\temp\Operations\Work Plans\Tower Crane Work Plan\Chapter 1 - Work Plan\Sec 1 - Overview" />
         <Button x:Name="btnFolderSource" Content="Browse" HorizontalAlignment="Left" Margin="442,28,0,0" VerticalAlignment="Top" Width="65" Height="32" Click="btnFolderSource_Click"/>
-        <TextBox x:Name="txtDirPathDest" HorizontalAlignment="Left" Height="29" Margin="10,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="427" TextAlignment="Right" />
+        <TextBox x:Name="txtDirPathDest" HorizontalAlignment="Left" Height="29" Margin="10,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="427" TextAlignment="Right" Text="C:\temp\HTML\" />
         <Button x:Name="btnFolderDest" Content="Browse" HorizontalAlignment="Left" Margin="442,82,0,0" VerticalAlignment="Top" Width="65" Height="29" Click="btnFolderDest_Click"/>
 
     </Grid>

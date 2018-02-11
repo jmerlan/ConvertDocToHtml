@@ -51,21 +51,29 @@ namespace ConvertDocxToHtml
             {
                 sb.Append(System.IO.Path.GetFileName(f) + "\n");
             }
-            System.Windows.MessageBox.Show(sb.ToString());
 
             return files;
         }
 
         /// <summary>
-        /// Converts a file to HTML
+        /// Converts a file to an HTML file
         /// </summary>
+        /// <param name="docXFilePath">The file to be converted</param>
+        /// <param name="htmlFilePath">The path of the newly created HTML file</param>
         private void ConvertDirToHtml(string docXFilePath, string htmlFilePath)
         {
-            //byte[] byteArray = File.ReadAllBytes(docXFilePath);
-            byte[] byteArray = File.ReadAllBytes(@"C: \Users\jay.merlan\Desktop\Temp\Doc Conversion\Tower Crane Work Plan\Chapter 1 - Work Plan\Sec 1 - Overview\Overview.docx");
+            byte[] byteArray = File.ReadAllBytes(docXFilePath);
+            //byte[] byteArray = File.ReadAllBytes(@"C:\Users\Jay\Amazon Drive\Business\BIM Extension\Projects\14074 - MyLewis 2\Documentation\Operations\Work Plans\Tower Crane Work Plan\Chapter 1 - Work Plan\Sec 1 - Overview\Overview.docx");
+
+            // Get extension of file for format checking
+            string fileExtension = System.IO.Path.GetExtension(docXFilePath);
+
+            // List for printing files not converted
+            List<string> notDocxFiles = new List<string>();
 
             using (MemoryStream memoryStream = new MemoryStream())
             {
+                System.Windows.Forms.MessageBox.Show(docXFilePath);
                 memoryStream.Write(byteArray, 0, byteArray.Length);
                 using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
                 {
@@ -85,6 +93,12 @@ namespace ConvertDocxToHtml
         {
             string htmlPath = txtDirPathDest.Text;
 
+            // Get filename of source
+            // Generate HTML filename
+            string docFileName = System.IO.Path.GetFileName(sourceFilePath);
+
+
+            htmlPath = htmlPath + docFileName + ".html";
             
             return htmlPath;
         }
@@ -96,13 +110,9 @@ namespace ConvertDocxToHtml
             
             foreach (string f in files)
             {
-                // Generate HTML filename
-                string docFileName = System.IO.Path.GetFileName(f);
-
-                System.Windows.MessageBox.Show(htmlFilePath);
 
                 // Convert
-                ConvertDirToHtml(f, htmlFilePath);
+                ConvertDirToHtml(f, GenerateHtmlFilePath(f));
             }
         }
 
