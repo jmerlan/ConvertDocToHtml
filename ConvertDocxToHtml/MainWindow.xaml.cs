@@ -68,29 +68,44 @@ namespace ConvertDocxToHtml
             // Get extension of file for format checking
             string fileExtension = System.IO.Path.GetExtension(docXFilePath);
 
-            // List for printing files not converted
-            List<string> notDocxFiles = new List<string>();
-
-            using (MemoryStream memoryStream = new MemoryStream())
+            if (fileExtension == ".docx")
             {
-                System.Windows.Forms.MessageBox.Show(docXFilePath);
-                memoryStream.Write(byteArray, 0, byteArray.Length);
-                using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
+                using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    HtmlConverterSettings settings = new HtmlConverterSettings()
-                    {
-                        PageTitle = "My Page Title"
-                    };
-                    XElement html = HtmlConverter.ConvertToHtml(doc, settings);
+                    System.Windows.Forms.MessageBox.Show(docXFilePath);
+                    memoryStream.Write(byteArray, 0, byteArray.Length);
 
-                    File.WriteAllText(htmlFilePath, html.ToStringNewLineOnAttributes());
+                    try
+                    {
+                        using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
+                        {
+                            HtmlConverterSettings settings = new HtmlConverterSettings()
+                            {
+                                PageTitle = "My Page Title"
+                            };
+                            XElement html = HtmlConverter.ConvertToHtml(doc, settings);
+
+                            File.WriteAllText(htmlFilePath, html.ToStringNewLineOnAttributes());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.Forms.MessageBox.Show(ex.ToString());
+                    }
                 }
             }
+            else
+            {
+                // Do nothing?
+            }
+            
         }
 
 
         private string GenerateHtmlFilePath(string sourceFilePath)
         {
+            //string htmlPath = @"C:\temp\HTML";
+
             string htmlPath = txtDirPathDest.Text;
 
             // Get filename of source
@@ -99,7 +114,7 @@ namespace ConvertDocxToHtml
 
 
             htmlPath = htmlPath + docFileName + ".html";
-            
+
             return htmlPath;
         }
 
@@ -110,7 +125,6 @@ namespace ConvertDocxToHtml
             
             foreach (string f in files)
             {
-
                 // Convert
                 ConvertDirToHtml(f, GenerateHtmlFilePath(f));
             }
