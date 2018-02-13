@@ -19,7 +19,7 @@ using System.Xml.Linq;
 using OpenXmlPowerTools;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-
+using Spire.Doc;
 
 namespace ConvertDocxToHtml
 {
@@ -28,6 +28,12 @@ namespace ConvertDocxToHtml
     /// </summary>
     public partial class MainWindow : Window
     {
+        // Fields to log statistics
+        public static List<string> convertedDocs = new List<string>();
+        public static List<string> docsNotConverted = new List<string>();
+        StringBuilder stringConvertedDocs = new StringBuilder();
+        StringBuilder stringNotConvertedDocs = new StringBuilder();
+
 
         public MainWindow()
         {
@@ -58,21 +64,25 @@ namespace ConvertDocxToHtml
         /// <summary>
         /// Converts a file to an HTML file
         /// </summary>
-        /// <param name="docXFilePath">The file to be converted</param>
+        /// <param name="docFilePath">The file to be converted</param>
         /// <param name="htmlFilePath">The path of the newly created HTML file</param>
-        private void ConvertDirToHtml(string docXFilePath, string htmlFilePath)
+        private void ConvertDirToHtml(string docFilePath, string htmlFilePath)
         {
-            byte[] byteArray = File.ReadAllBytes(docXFilePath);
+            byte[] byteArray = File.ReadAllBytes(docFilePath);
             //byte[] byteArray = File.ReadAllBytes(@"C:\Users\Jay\Amazon Drive\Business\BIM Extension\Projects\14074 - MyLewis 2\Documentation\Operations\Work Plans\Tower Crane Work Plan\Chapter 1 - Work Plan\Sec 1 - Overview\Overview.docx");
 
             // Get extension of file for format checking
-            string fileExtension = System.IO.Path.GetExtension(docXFilePath);
+            string fileExtension = System.IO.Path.GetExtension(docFilePath);
 
+            // Get filename of file for HTML title
+            string fileName = System.IO.Path.GetFileName(docFilePath);
+
+            // Process if filetype is DocX
             if (fileExtension == ".docx")
             {
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    System.Windows.Forms.MessageBox.Show(docXFilePath);
+                    //System.Windows.Forms.MessageBox.Show(docXFilePath);
                     memoryStream.Write(byteArray, 0, byteArray.Length);
 
                     try
@@ -81,24 +91,44 @@ namespace ConvertDocxToHtml
                         {
                             HtmlConverterSettings settings = new HtmlConverterSettings()
                             {
-                                PageTitle = "My Page Title"
+                                PageTitle = fileName
                             };
                             XElement html = HtmlConverter.ConvertToHtml(doc, settings);
 
                             File.WriteAllText(htmlFilePath, html.ToStringNewLineOnAttributes());
                         }
+
+                        convertedDocs.Add(fileName);
                     }
                     catch (Exception ex)
                     {
-                        System.Windows.Forms.MessageBox.Show(ex.ToString());
+                        //System.Windows.Forms.MessageBox.Show(ex.ToString());
+                        docsNotConverted.Add(fileName);
                     }
                 }
+            }
+            // Process if legacy Word Doc
+            if (fileExtension == ".doc")
+            {
+                Spire.Doc.Document document = new Spire.Doc.Document();
+                document.LoadFromFile(docFilePath);
+
+                document.SaveToFile(htmlFilePath, FileFormat.Html);
             }
             else
             {
                 // Do nothing?
             }
-            
+
+            foreach (string s in convertedDocs)
+            {
+                stringConvertedDocs.Append(s + "\n");
+            }
+            foreach (string s in docsNotConverted)
+            {
+                stringNotConvertedDocs.Append(s + "\n");
+            }
+
         }
 
 
@@ -128,6 +158,10 @@ namespace ConvertDocxToHtml
                 // Convert
                 ConvertDirToHtml(f, GenerateHtmlFilePath(f));
             }
+
+            System.Windows.Forms.MessageBox.Show(stringConvertedDocs.ToString());
+            System.Windows.Forms.MessageBox.Show(stringNotConvertedDocs.ToString());
+
         }
 
         private void btnFolderSource_Click(object sender, RoutedEventArgs e)
