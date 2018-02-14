@@ -69,7 +69,9 @@ namespace ConvertDocxToHtml
         private void ConvertDirToHtml(string docFilePath, string htmlFilePath)
         {
             byte[] byteArray = File.ReadAllBytes(docFilePath);
-            //byte[] byteArray = File.ReadAllBytes(@"C:\Users\Jay\Amazon Drive\Business\BIM Extension\Projects\14074 - MyLewis 2\Documentation\Operations\Work Plans\Tower Crane Work Plan\Chapter 1 - Work Plan\Sec 1 - Overview\Overview.docx");
+
+            // Get file location (directory only)
+            string fileFolder = System.IO.Path.GetDirectoryName(docFilePath);
 
             // Get extension of file for format checking
             string fileExtension = System.IO.Path.GetExtension(docFilePath);
@@ -77,8 +79,11 @@ namespace ConvertDocxToHtml
             // Get filename of file for HTML title
             string fileName = System.IO.Path.GetFileName(docFilePath);
 
+            // Temporary file location
+            string tempFile = @"C:\temp\temp.docx";
+
             // Process if filetype is DocX
-            if (fileExtension == ".docx")
+            if (fileExtension == ".docx" || fileExtension == ".doc")
             {
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
@@ -93,7 +98,13 @@ namespace ConvertDocxToHtml
                             {
                                 PageTitle = fileName
                             };
-                            XElement html = HtmlConverter.ConvertToHtml(doc, settings);
+
+                            doc.Clone(tempFile);
+
+                            WordprocessingDocument tempDoc = WordprocessingDocument.Open(tempFile, true);
+
+                            XElement html = HtmlConverter.ConvertToHtml(tempDoc, settings);
+
 
                             File.WriteAllText(htmlFilePath, html.ToStringNewLineOnAttributes());
                         }
@@ -106,14 +117,6 @@ namespace ConvertDocxToHtml
                         docsNotConverted.Add(fileName);
                     }
                 }
-            }
-            // Process if legacy Word Doc
-            if (fileExtension == ".doc")
-            {
-                Spire.Doc.Document document = new Spire.Doc.Document();
-                document.LoadFromFile(docFilePath);
-
-                document.SaveToFile(htmlFilePath, FileFormat.Html);
             }
             else
             {
@@ -142,7 +145,6 @@ namespace ConvertDocxToHtml
             // Generate HTML filename
             string docFileName = System.IO.Path.GetFileName(sourceFilePath);
 
-
             htmlPath = htmlPath + docFileName + ".html";
 
             return htmlPath;
@@ -159,8 +161,8 @@ namespace ConvertDocxToHtml
                 ConvertDirToHtml(f, GenerateHtmlFilePath(f));
             }
 
-            System.Windows.Forms.MessageBox.Show(stringConvertedDocs.ToString());
-            System.Windows.Forms.MessageBox.Show(stringNotConvertedDocs.ToString());
+            //System.Windows.Forms.MessageBox.Show(stringConvertedDocs.ToString());
+            //System.Windows.Forms.MessageBox.Show(stringNotConvertedDocs.ToString());
 
         }
 
